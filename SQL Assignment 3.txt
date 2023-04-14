@@ -1,0 +1,40 @@
+1. Create an ‘Orders’ table which comprises of these columns – ‘order_id’, ‘order_date’, ‘amount’,
+‘customer_id’
+
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    order_date DATE,
+    amount DECIMAL(10, 2),
+    customer_id INT,
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
+);
+
+
+2. Make an inner join on ‘Customer’ & ‘Order’ tables on the ‘customer_id’ column
+
+SELECT *
+FROM customer
+INNER JOIN Orders
+ON customer.customer_id = Orders.customer_id;
+
+
+3. Make left and right joins on ‘Customer’ & ‘Order’ tables on the ‘customer_id’ column
+
+-- Left join
+SELECT *
+FROM customer
+LEFT JOIN Orders
+ON customer.customer_id = Orders.customer_id;
+
+-- Right join
+SELECT *
+FROM Orders
+RIGHT JOIN customer
+ON Orders.customer_id = customer.customer_id;
+
+
+4. Update the ‘Orders’ table, set the amount to be 100 where ‘customer_id’ is 3
+
+UPDATE Orders
+SET amount = 100
+WHERE customer_id = 3;

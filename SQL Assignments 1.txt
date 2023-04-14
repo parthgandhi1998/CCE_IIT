@@ -1,0 +1,33 @@
+1. Create a customer table which comprises of these columns – ‘customer_id’, ‘first_name’,
+
+CREATE TABLE customer (
+    customer_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    address VARCHAR(100),
+    city VARCHAR(50),
+    state VARCHAR(50),
+    zip VARCHAR(20)
+);
+
+2. Insert 5 new records into the table
+
+INSERT INTO customer (customer_id, first_name, last_name, email, address, city, state, zip)
+VALUES
+    (1, 'John', 'Doe', 'johndoe@example.com', '123 Main St', 'San Francisco', 'CA', '94105'),
+    (2, 'Jane', 'Doe', 'janedoe@example.com', '456 Oak Ave', 'San Jose', 'CA', '95134'),
+    (3, 'George', 'Washington', 'gwashington@example.com', '789 Maple Blvd', 'Washington', 'DC', '20001'),
+    (4, 'Thomas', 'Jefferson', 'tjefferson@example.com', '234 Elm St', 'Charlottesville', 'VA', '22902'),
+    (5, 'Abraham', 'Lincoln', 'alincoln@example.com', '567 Pine St', 'Springfield', 'IL', '62704');
+
+3. Select only the ‘first_name’ & ‘last_name’ columns from the customer table
+
+SELECT first_name, last_name
+FROM customer;
+
+4. Select those records where ‘first_name’ starts with “G” and city is ‘San Jose
+
+SELECT *
+FROM customer
+WHERE first_name LIKE 'G%' AND city = 'San Jose';

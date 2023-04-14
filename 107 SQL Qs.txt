@@ -1,0 +1,787 @@
+1. Find out the selling cost AVG for packages developed in Pascal.
+
+SELECT AVG(SCOST) AS avg_selling_cost
+FROM SOFTWARE
+WHERE DEVELOPIN = 'PASCAL';
+
+
+2. Display Names, Ages of all Programmers.
+
+SELECT PNAME, TIMESTAMPDIFF(YEAR, DOB, CURDATE()) AS age
+FROM STUDIES;
+
+3. Display the Names of those who have done the DAP Course.
+
+SELECT PNAME
+FROM STUDIES
+WHERE COURSE = 'DAP';
+
+4. Display the Names and Date of Births of all Programmers Born in January.
+
+SELECT PNAME, DOB
+FROM STUDIES
+WHERE MONTH(DOB) = 1;
+
+5. What is the Highest Number of copies sold by a Package?
+
+SELECT MAX(SOLD) AS highest_sold
+FROM SOFTWARE;
+
+6. Display lowest course Fee.
+
+SELECT MIN(`COURSE FEE`) AS lowest_course_fee
+FROM STUDIES;
+
+7. How many programmers done the PGDCA Course?
+
+SELECT COUNT(*) AS pgdca_count
+FROM STUDIES
+WHERE COURSE = 'PGDCA';
+
+8. How much revenue has been earned thru sales of Packages Developed in C.
+
+SELECT SUM(SCOST * SOLD) AS revenue
+FROM SOFTWARE
+WHERE DEVELOPIN = 'C';
+
+9. Display the Details of the Software Developed by Ramesh.
+
+SELECT *
+FROM SOFTWARE
+WHERE PNAME = 'RAMESH';
+
+10. How many Programmers Studied at Sabhari?
+
+SELECT COUNT(*) AS sabhari_count
+FROM STUDIES
+WHERE INSTITUTE = 'SABHARI';
+
+11. Display details of Packages whose sales crossed the 2000 Mark.
+
+SELECT *
+FROM SOFTWARE
+WHERE SOLD > 2000;
+
+12. Display the Details of Packages for which Development Cost have been recovered.
+
+SELECT *
+FROM SOFTWARE
+WHERE DCOST < SOLD * SCOST;
+
+13. What is the cost of the costliest software development in Basic?
+
+SELECT MAX(DCOST) AS costliest_development_cost
+FROM SOFTWARE
+WHERE DEVELOPIN = 'BASIC';
+
+14. How many Packages Developed in DBASE?
+
+SELECT COUNT(*) AS dbase_count
+FROM SOFTWARE
+WHERE DEVELOPIN = 'DBASE';
+
+15. How many programmers studied in Pragathi?
+
+SELECT COUNT(*) AS pragathi_count
+FROM STUDIES
+WHERE INSTITUTE = 'PRAGATHI';
+
+16. How many Programmers Paid 5000 to 10000 for their course?
+
+SELECT COUNT(*) AS paid_5000_to_10000_count
+FROM STUDIES
+WHERE `COURSE FEE` BETWEEN 5000 AND 10000;
+
+17. What is AVG Course Fee
+
+SELECT AVG(`COURSE FEE`) AS avg_course_fee
+FROM STUDIES;
+
+18. Display the details of the Programmers Knowing C.
+
+SELECT *
+FROM STUDIES
+WHERE PROF1 = 'C' OR PROF2 = 'C';
+
+19. How many Programmers know either COBOL or PASCAL.
+
+SELECT COUNT(*) AS cobol_or_pascal_count
+FROM STUDIES
+WHERE PROF1 = 'COBOL' OR PROF2 = 'COBOL' OR PROF1 = 'PASCAL' OR PROF2 = 'PASCAL';
+
+20. How many Programmers Don’t know PASCAL and C
+
+SELECT COUNT(*) AS no_pascal
+
+21. How old is the Oldest Male Programmer.
+
+SELECT MAX(DATEDIFF(CURDATE(), DOB)/365) AS oldest_male_programmer_age
+FROM PROGRAMMERS
+WHERE GENDER = 'M';
+
+22. What is the AVG age of Female Programmers?
+
+SELECT AVG(DATEDIFF(CURDATE(), DOB)/365) AS avg_female_programmer_age
+FROM PROGRAMMERS
+WHERE GENDER = 'F';
+
+23. Calculate the Experience in Years for each Programmer and Display with their
+names in Descending order.
+
+SELECT PNAME, DATEDIFF(CURDATE(), DOJ)/365 AS experience
+FROM PROGRAMMERS
+ORDER BY experience DESC;
+
+24. Who are the Programmers who celebrate their Birthday’s During the Current
+Month?
+
+SELECT PNAME
+FROM PROGRAMMERS
+WHERE MONTH(DOB) = MONTH(CURDATE());
+
+25. How many Female Programmers are there?
+
+SELECT COUNT(*) AS num_female_programmers
+FROM PROGRAMMERS
+WHERE GENDER = 'F';
+
+26. What are the Languages studied by Male Programmers.
+
+SELECT DISTINCT LANGUAGE
+FROM PROGRAMMERS
+JOIN SOFTWARE ON PROGRAMMERS.PNAME = SOFTWARE.PNAME
+WHERE GENDER = 'M';
+
+27. What is the AVG Salary?
+
+SELECT AVG(SALARY) AS avg_salary
+FROM PROGRAMMERS;
+
+28. How many people draw salary 2000 to 4000?
+
+SELECT COUNT(*) AS num_salaries_between_2000_4000
+FROM PROGRAMMERS
+WHERE SALARY BETWEEN 2000 AND 4000;
+
+29. Display the details of those who don’t know Clipper, COBOL or PASCAL.
+
+SELECT *
+FROM PROGRAMMERS
+WHERE PROF1 NOT IN ('Clipper', 'COBOL', 'PASCAL') AND PROF2 NOT IN ('Clipper', 'COBOL', 'PASCAL');
+
+30. Display the Cost of Package Developed By each Programmer.
+
+SELECT PNAME, COST
+FROM SOFTWARE;
+
+31. Display the sales values of the Packages Developed by the each Programmer.
+
+SELECT PNAME, SOLD * SCOST AS sales_value
+FROM SOFTWARE;
+
+32. Display the Number of Packages sold by Each Programmer.
+
+SELECT PNAME, SUM(SOLD) AS num_packages_sold
+FROM SOFTWARE
+GROUP BY PNAME;
+
+33. Display the sales cost of the packages Developed by each Programmer Language wise. 
+
+SELECT p.language, pr.name AS programmer_name, SUM(p.sales_cost) AS total_sales_cost
+FROM packages p
+JOIN programmers pr ON p.programmer_id = pr.programmer_id
+GROUP BY p.language, programmer_name;
+
+34. Display each language name with AVG Development Cost, AVG Selling Cost and
+AVG Price per Copy.
+
+SELECT language,
+  AVG(development_cost) AS avg_development_cost,
+  AVG(selling_cost) AS avg_selling_cost,
+  AVG(price_per_copy) AS avg_price_per_copy
+FROM packages
+WHERE language NOT IN ('C', 'C++')
+GROUP BY language;
+
+35. Display each programmer’s name, costliest and cheapest Packages Developed by him or
+her.
+
+SELECT pr.name AS programmer_name, pc.language, pc.package_name, pc.selling_cost
+FROM programmers pr
+JOIN (
+  SELECT packages.*, 
+    ROW_NUMBER() OVER (PARTITION BY programmer_id ORDER BY selling_cost DESC) AS highest_cost_rank,
+    ROW_NUMBER() OVER (PARTITION BY programmer_id ORDER BY selling_cost ASC) AS lowest_cost_rank
+  FROM packages
+) pc ON pr.programmer_id = pc.programmer_id
+WHERE pc.highest_cost_rank = 1 OR pc.lowest_cost_rank = 1;
+
+36. Display each institute name with number of Courses, Average Cost per Course.
+
+SELECT i.name AS institute_name, COUNT(*) AS num_courses, AVG(c.cost) AS avg_cost_per_course
+FROM institutes i
+JOIN courses c ON i.institute_id = c.institute_id
+GROUP BY i.name;
+
+37. Display each institute Name with Number of Students.
+
+SELECT i.name AS institute_name, COUNT(*) AS num_students
+FROM institutes i
+JOIN students s ON i.institute_id = s.institute_id
+GROUP BY i.name;
+
+38. Display Names of Male and Female Programmers. Gender also.
+
+SELECT name, gender
+FROM programmers;
+
+39. Display the Name of Programmers and Their Packages.
+
+SELECT pr.name AS programmer_name, pc.language, pc.package_name, pc.price_per_copy
+FROM programmers pr
+JOIN packages pc ON pr.programmer_id = pc.programmer_id;
+
+40. Display the Number of Packages in Each Language Except C and C++.
+
+SELECT language, COUNT(*) AS num_packages
+FROM packages
+WHERE language NOT IN ('C', 'C++')
+GROUP BY language;
+
+41. Display the Number of Packages in Each Language for which Development Cost is
+less than 1000.
+
+SELECT Column1 AS Language, COUNT(*) AS Num_Packages 
+FROM SOFTWARE 
+WHERE DCOST < 1000 
+GROUP BY Column1;
+
+42. Display AVG Difference between SCOST, DCOST for Each Package.
+
+SELECT TITLE, AVG(SCOST-DCOST) AS Avg_Diff 
+FROM SOFTWARE 
+GROUP BY TITLE;
+
+43. Display the total SCOST, DCOST and amount to Be Recovered for each
+Programmer for Those Whose Cost has not yet been Recovered.
+
+SELECT PNAME, SUM(SCOST) AS Total_SCOST, SUM(DCOST) AS Total_DCOST, 
+(SUM(SCOST) - SUM(DCOST)) AS Amount_To_Be_Recovered 
+FROM SOFTWARE 
+WHERE TITLE NOT IN (SELECT TITLE FROM STUDIES) 
+GROUP BY PNAME;
+
+44. Display Highest, Lowest and Average Salaries for those earning more than 2000.
+
+SELECT MAX(SALARY) AS Highest_Salary, MIN(SALARY) AS Lowest_Salary, AVG(SALARY) AS Average_Salary 
+FROM PROFILE 
+WHERE SALARY > 2000;
+
+45. Who is the Highest Paid C Programmers?
+
+SELECT PNAME, SALARY 
+FROM PROFILE 
+WHERE PROF1 = 'C' OR PROF2 = 'C' 
+ORDER BY SALARY DESC 
+LIMIT 1;
+
+46. Who is the Highest Paid Female COBOL Programmer?
+
+SELECT PNAME, SALARY 
+FROM PROFILE 
+WHERE GENDER = 'F' AND (PROF1 = 'COBOL' OR PROF2 = 'COBOL') 
+ORDER BY SALARY DESC 
+LIMIT 1;
+
+47. Display the names of the highest paid programmers for each Language.
+
+SELECT p1.PROF1 AS Language, p1.PNAME AS Highest_Paid 
+FROM PROFILE p1 
+WHERE p1.SALARY = (SELECT MAX(p2.SALARY) FROM PROFILE p2 WHERE p2.PROF1 = p1.PROF1) 
+UNION 
+SELECT p1.PROF2 AS Language, p1.PNAME AS Highest_Paid 
+FROM PROFILE p1 
+WHERE p1.SALARY = (SELECT MAX(p2.SALARY) FROM PROFILE p2 WHERE p2.PROF2 = p1.PROF2);
+
+48. Who is the least experienced Programmer.
+
+SELECT PNAME, DOB, DOJ 
+FROM PROFILE 
+ORDER BY DOJ ASC 
+LIMIT 1;
+
+49. Who is the most experienced male programmer knowing PASCAL.
+
+SELECT PNAME, DOB, DOJ 
+FROM PROFILE 
+WHERE GENDER = 'M' AND (PROF1 = 'PASCAL' OR PROF2 = 'PASCAL') 
+ORDER BY DOJ DESC 
+LIMIT 1;
+
+50. Which Language is known by only one Programmer?
+
+SELECT PROF1 AS Language 
+FROM PROFILE 
+GROUP BY PROF1 
+HAVING COUNT(*)
+
+51. Who is the Above Programmer Referred in 50?
+
+Mary and Vijaya
+
+52. Who is the Youngest Programmer knowing DBASE?
+
+SELECT PROGNAME, AGE
+FROM PROGRAMMER
+WHERE DBASE='YES'
+ORDER BY AGE ASC
+LIMIT 1;
+
+53. Which Female Programmer earning more than 3000 does not know C, C++,
+ORACLE or DBASE?
+
+SELECT PROGNAME, GENDER, SALARY
+FROM PROGRAMMER
+WHERE GENDER='FEMALE' AND SALARY > 3000 AND C='NO' AND CPP='NO' AND ORACLE='NO' AND DBASE='NO';
+
+54. Which Institute has most number of Students?
+
+SELECT INSTNAME, COUNT(*) AS NUM_STUDENTS
+FROM STUDENT
+GROUP BY INSTNAME
+ORDER BY NUM_STUDENTS DESC
+LIMIT 1;
+
+55. What is the Costliest course?
+
+SELECT COURSENAME, FEE
+FROM COURSE
+ORDER BY FEE DESC
+LIMIT 1;
+
+56. Which course has been done by the most of the Students?
+
+SELECT COURSENAME, COUNT(*) AS NUM_STUDENTS
+FROM ENROLLMENT
+JOIN COURSE ON ENROLLMENT.COURSEID = COURSE.COURSEID
+GROUP BY COURSENAME
+ORDER BY NUM_STUDENTS DESC
+LIMIT 1;
+
+57. Which Institute conducts costliest course.
+
+SELECT INSTNAME, COURSENAME, FEE
+FROM COURSE
+JOIN INSTITUTE ON COURSE.INSTID = INSTITUTE.INSTID
+ORDER BY FEE DESC
+LIMIT 1;
+
+58. Display the name of the Institute and Course, which has below AVG course fee.
+
+SELECT INSTNAME, COURSENAME, FEE
+FROM COURSE
+JOIN INSTITUTE ON COURSE.INSTID = INSTITUTE.INSTID
+WHERE FEE < (SELECT AVG(FEE) FROM COURSE)
+
+59. Display the names of the courses whose fees are within 1000 (+ or -) of the
+Average Fee,
+
+SELECT COURSENAME, FEE
+FROM COURSE
+WHERE FEE BETWEEN (SELECT AVG(FEE) FROM COURSE) - 1000 AND (SELECT AVG(FEE) FROM COURSE) + 1000;
+
+60. Which package has the Highest Development cost?
+
+SELECT TITLE, DEVELOPIN, DCOST
+FROM SOFTWARE
+ORDER BY DCOST DESC
+LIMIT 1;
+
+61. Which course has below AVG number of Students?
+
+SELECT COURSE, COUNT(*) AS Students
+FROM STUDIES
+GROUP BY COURSE
+HAVING COUNT(*) < (SELECT AVG(Count) FROM (SELECT COUNT(*) AS Count FROM STUDIES GROUP BY COURSE) AS AvgCount)
+
+62. Which Package has the lowest selling cost?
+
+SELECT TITLE, SOLD, SCOST
+FROM SOFTWARE
+ORDER BY SCOST ASC
+LIMIT 1;
+
+63. Who Developed the Package that has sold the least number of copies?
+
+SELECT PNAME, TITLE, SOLD
+FROM SOFTWARE
+WHERE SOLD = (SELECT MIN(SOLD) FROM SOFTWARE)
+
+64. Which language has used to develop the package, which has the highest
+sales amount?
+
+SELECT PROF1, TITLE, SOLD, SCOST
+FROM SOFTWARE
+ORDER BY (SOLD*SCOST) DESC
+LIMIT 1;
+
+65. How many copies of package that has the least difference between
+development and selling cost where sold.
+
+SELECT TITLE, SOLD, (SCOST - DCOST) AS Diff
+FROM SOFTWARE
+ORDER BY Diff ASC
+LIMIT 1;
+
+66. Which is the costliest package developed in PASCAL.
+
+SELECT TITLE, DEVELOPIN, SCOST
+FROM SOFTWARE
+WHERE DEVELOPIN = 'PASCAL'
+ORDER BY SCOST DESC
+LIMIT 1;
+
+67. Which language was used to develop the most number of Packages.
+
+SELECT Column1 AS Language, COUNT(*) AS NumPackages 
+FROM SOFTWARE 
+GROUP BY Language 
+ORDER BY NumPackages DESC 
+LIMIT 1;
+
+68. Which programmer has developed the highest number of Packages? 
+
+SELECT PNAME AS Programmer, COUNT(*) AS NumPackages 
+FROM SOFTWARE 
+GROUP BY PNAME 
+ORDER BY NumPackages DESC 
+LIMIT 1;
+
+69. Who is the Author of the Costliest Package?
+
+SELECT PNAME AS Author, TITLE AS CostliestPackage 
+FROM SOFTWARE 
+WHERE SCOST = (SELECT MAX(SCOST) FROM SOFTWARE);
+
+70. Display the names of the packages, which have sold less than the AVG
+number of copies.
+
+SELECT TITLE 
+FROM SOFTWARE 
+WHERE SOLD < (SELECT AVG(SOLD) FROM SOFTWARE);
+
+71. Who are the authors of the Packages, which have recovered more than double the
+Development cost?
+
+SELECT PNAME AS Author, TITLE AS Package 
+FROM SOFTWARE 
+WHERE SOLD * DCOST > 2 * SCOST;
+
+72. Display the programmer Name and the cheapest packages developed by them in
+each language.
+
+SELECT S1.PNAME AS Programmer, S1.TITLE AS CheapestPackage, S1.Column1 AS Language 
+FROM SOFTWARE S1 
+WHERE S1.DCOST = (SELECT MIN(S2.DCOST) FROM SOFTWARE S2 WHERE S2.PNAME = S1.PNAME AND S2.Column1 = S1.Column1);
+
+73. Display the language used by each programmer to develop the Highest
+Selling and Lowest-selling package.
+
+SELECT PNAME AS Programmer, 
+       MAX(TITLE) FILTER (WHERE SOLD = (SELECT MAX(SOLD) FROM SOFTWARE S2 WHERE S2.PNAME = S1.PNAME)) AS HighestSellingPackage, 
+       MIN(TITLE) FILTER (WHERE SOLD = (SELECT MIN(SOLD) FROM SOFTWARE S2 WHERE S2.PNAME = S1.PNAME)) AS LowestSellingPackage,
+       MAX(Column1) FILTER (WHERE SOLD = (SELECT MAX(SOLD) FROM SOFTWARE S2 WHERE S2.PNAME = S1.PNAME)) AS LanguageOfHighestSellingPackage,
+       MAX(Column1) FILTER (WHERE SOLD = (SELECT MIN(SOLD) FROM SOFTWARE S2 WHERE S2.PNAME = S1.PNAME)) AS LanguageOfLowestSellingPackage
+FROM SOFTWARE S1
+GROUP BY PNAME;
+
+74. Who is the youngest male Programmer born in 1965?
+
+SELECT PNAME, DOB 
+FROM STUDIES 
+WHERE GENDER = 'M' AND DOB = (SELECT MIN(DOB) FROM STUDIES WHERE GENDER = 'M' AND YEAR(DOB) = 1965);
+
+75. Who is the oldest Female Programmer who joined in 1992?
+
+SELECT PNAME, DOJ 
+FROM STUDIES 
+WHERE GENDER = 'F' AND DOJ = (SELECT MIN(DOJ) FROM STUDIES WHERE GENDER = 'F' AND YEAR(DOJ) = 1992);
+
+76. In which year was the most number of Programmers born.
+
+SELECT YEAR(DateOfBirth) AS BirthYear, COUNT(*) AS NumProgrammersBorn 
+FROM Programmers
+GROUP BY BirthYear
+ORDER BY NumProgrammersBorn DESC 
+LIMIT 1;
+
+77. In which month did most number of programmers join?
+
+SELECT MONTH(DateJoined) AS JoinMonth, COUNT(*) AS NumProgrammersJoined 
+FROM Programmers 
+GROUP BY JoinMonth 
+ORDER BY NumProgrammersJoined DESC 
+LIMIT 1;
+
+78. In which language are most of the programmer’s proficient.
+
+SELECT Proficiency, COUNT(*) AS NumProgrammers 
+FROM Programmers 
+GROUP BY Proficiency 
+ORDER BY NumProgrammers DESC 
+LIMIT 1;
+
+79. Who are the male programmers earning below the AVG salary of
+Female Programmers?
+
+SELECT * 
+FROM Programmers 
+WHERE Gender = 'Male' AND Salary < (
+  SELECT AVG(Salary)
+  FROM Programmers
+  WHERE Gender = 'Female'
+);
+
+80. Who are the Female Programmers earning more than the Highest Paid?
+
+SELECT *
+FROM Programmers
+WHERE Gender = 'Female' AND Salary > (
+  SELECT MAX(Salary)
+  FROM Programmers
+);
+
+81. Which language has been stated as the proficiency by most of the Programmers?
+
+SELECT Proficiency, COUNT(*) AS NumProgrammers 
+FROM Programmers 
+GROUP BY Proficiency 
+ORDER BY NumProgrammers DESC 
+LIMIT 1;
+
+82. Display the details of those who are drawing the same salary.
+
+SELECT *
+FROM Programmers p1
+WHERE EXISTS (
+  SELECT *
+  FROM Programmers p2
+  WHERE p1.Salary = p2.Salary AND p1.ID != p2.ID
+);
+
+83. Display the details of the Software Developed by the Male Programmers Earning
+More than 3000/-.
+
+SELECT s.*
+FROM SoftwareDeveloped s
+JOIN Programmers p ON s.ProgrammerID = p.ID
+WHERE p.Gender = 'Male' AND p.Salary > 3000;
+
+84. Display the details of the packages developed in Pascal by the Female
+Programmers.
+
+SELECT s.*
+FROM SoftwareDeveloped s
+JOIN Programmers p ON s.ProgrammerID = p.ID
+WHERE p.Gender = 'Female' AND s.Language = 'Pascal';
+
+85. Display the details of the Programmers who joined before 1990.
+
+SELECT *
+FROM Programmers
+WHERE YEAR(DateJoined) < 1990;
+
+86. Display the details of the Software Developed in C By female programmers of
+Pragathi.
+
+SELECT * FROM software 
+WHERE Language = 'C' 
+AND Institute = 'Pragathi' 
+AND Gender = 'Female';
+
+87. Display the number of packages, No. of Copies Sold and sales value of
+each programmer institute wise.
+
+SELECT Institute, SUM(No_of_Copies) AS Total_Copies_Sold, 
+SUM(Sales_Value) AS Total_Sales_Value, 
+COUNT(DISTINCT Programmer) AS Number_of_Programmers 
+FROM software 
+GROUP BY Institute, Programmer;
+
+88. Display the details of the software developed in DBASE by Male Programmers, who
+belong to the institute in which most number of Programmers studied.
+
+SELECT * FROM software 
+WHERE Language = 'DBASE' 
+AND Gender = 'Male' 
+AND Institute = (SELECT Institute FROM programmers 
+                 GROUP BY Institute 
+                 ORDER BY COUNT(*) DESC 
+                 LIMIT 1);
+
+89. Display the details of the software Developed by the male programmers Born
+before 1965 and female programmers born after 1975.
+
+SELECT * FROM software 
+WHERE ((Gender = 'Male' AND YEAR(Date_of_Birth) < 1965) 
+       OR (Gender = 'Female' AND YEAR(Date_of_Birth) > 1975));
+
+90. Display the details of the software that has developed in the language which is
+neither the first nor the second proficiency of the programmers.
+
+SELECT * FROM software 
+WHERE Language NOT IN (SELECT prof1 FROM programmers 
+                       UNION 
+                       SELECT prof2 FROM programmers);
+
+91. Display the details of the software developed by the male students of Sabhari.
+
+SELECT * FROM software 
+WHERE Gender = 'Male' AND Institute = 'Sabhari';
+
+92. Display the names of the programmers who have not developed any packages.
+
+SELECT * FROM programmers 
+WHERE Programmer NOT IN (SELECT DISTINCT Programmer FROM software);
+
+93. What is the total cost of the Software developed by the programmers of Apple?
+
+SELECT SUM(Development_Cost) AS Total_Cost 
+FROM software 
+WHERE Institute = 'Apple';
+
+94. Who are the programmers who joined on the same day?
+
+SELECT a.Programmer, b.Programmer 
+FROM programmers a 
+INNER JOIN programmers b ON a.Joining_Date = b.Joining_Date 
+WHERE a.Programmer < b.Programmer;
+
+95. Who are the programmers who have the same Prof2?
+
+SELECT prof2, GROUP_CONCAT(Programmer) AS Programmers 
+FROM programmers 
+GROUP BY prof2 
+HAVING COUNT(*) > 1;
+
+96. Display the total sales value of the software, institute wise.
+
+SELECT Institute, SUM(Sales_Value) AS Total_Sales_Value 
+FROM software 
+GROUP BY Institute;
+
+97. In which institute does the person who developed the costliest package studied.
+
+SELECT Institute FROM programmers 
+WHERE Programmer = (SELECT Programmer FROM software 
+                    ORDER BY Sales_Value DESC 
+                    LIMIT 1);
+
+98. Which language listed in prof1, prof2 has not been used to develop any package.
+
+SELECT DISTINCT prof1, prof2 FROM programmers 
+WHERE prof1 NOT IN (SELECT DISTINCT Language FROM software) 
+AND prof2 NOT IN (SELECT DISTINCT Language FROM software);
+
+99. How much does the person who developed the highest selling package earn and
+what course did HE/SHE undergo. 
+
+SELECT programmers.Programmer, programmers.Course, software.Earnings 
+FROM programmers 
+INNER JOIN software ON programmers.Programmer = software.Programmer 
+WHERE No_of_Copies = (SELECT MAX(No_of_Copies) FROM software) 
+ORDER BY Earnings DESC 
+LIMIT 1;
+
+100. What is the AVG salary for those whose software sales is more than 50,000/-.
+
+SELECT AVG(salary) as avg_salary
+FROM programmer
+WHERE programmer_id IN (
+    SELECT programmer_id
+    FROM software
+    WHERE sales_value > 50000
+);
+
+101. How many packages were developed by students, who studied in institute that
+charge the lowest course fee?
+
+SELECT COUNT(*) as num_packages
+FROM software
+WHERE programmer_id IN (
+    SELECT programmer_id
+    FROM programmer
+    WHERE institute_id = (
+        SELECT institute_id
+        FROM institute
+        ORDER BY course_fee
+        LIMIT 1
+    )
+);
+
+102. How many packages were developed by the person who developed the
+cheapest package, where did HE/SHE study?
+
+SELECT COUNT(*) as num_packages
+FROM software
+WHERE programmer_id = (
+    SELECT programmer_id
+    FROM software
+    ORDER BY development_cost
+    LIMIT 1
+);
+
+103. How many packages were developed by the female programmers earning more
+than the highest paid male programmer?
+
+SELECT COUNT(*) as num_packages
+FROM software
+WHERE programmer_id IN (
+    SELECT programmer_id
+    FROM programmer
+    WHERE gender = 'Female' AND salary > (
+        SELECT MAX(salary)
+        FROM programmer
+        WHERE gender = 'Male'
+    )
+);
+
+104. How many packages are developed by the most experienced programmer form
+BDPS.
+
+SELECT COUNT(*) as num_packages
+FROM software
+WHERE programmer_id = (
+    SELECT programmer_id
+    FROM programmer
+    WHERE institute_id = (
+        SELECT institute_id
+        FROM institute
+        WHERE institute_name = 'BDPS'
+    )
+    ORDER BY experience DESC
+    LIMIT 1
+);
+
+105. List the programmers (form the software table) and the institutes they studied.
+
+SELECT p.programmer_name, i.institute_name
+FROM software s
+INNER JOIN programmer p ON s.programmer_id = p.programmer_id
+INNER JOIN institute i ON p.institute_id = i.institute_id;
+
+106. List each PROF with the number of Programmers having that PROF and the
+number of the packages in that PROF.
+
+SELECT prof, COUNT(DISTINCT programmer_id) as num_programmers, COUNT(*) as num_packages
+FROM programmer
+INNER JOIN software ON programmer.programmer_id = software.programmer_id
+GROUP BY prof;
+
+107. List the programmer names (from the programmer table) and No. Of Packages
+each has developed. 
+
+SELECT programmer_name, COUNT(*) as num_packages
+FROM software
+INNER JOIN programmer ON software.programmer_id = programmer.programmer_id
+GROUP BY programmer_name;
